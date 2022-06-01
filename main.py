@@ -1,63 +1,39 @@
-import argparse
-import json
+import sys
+from typing import Dict
 
-from google.api.http_pb2 import Http
-from googleapiclient import discovery
-import google.auth
-
+import gcp
+from cloudsqlproxy import run_cloud_sql_proxy
+from commandline import get_parameters
+from config import Configuration
 from instances import Instance, Site
-from persistence import save_site, load_site
+from persistence import save_site, load_site, load_config, save_config
 
 
-def get_credentials_and_project():
-    return google.auth.default()
+def execute_command(parameters: Dict[str,str], config : Configuration, site : Site):
+    command = parameters['command']
+    match command:
+        case 'list':
+            site.print_list()
+        case 'start':
+            instance = site.get_instance_by_name(parameters['name'], parameters['project'])
+            if instance:
+                run_cloud_sql_proxy(config.cloud_sql_path, instance.connection_name, instance.port, instance.iam)
+        case 'import':
+            gcp.obtain_instances(site)
 
 
-def get_google_service(credentials):
-    return discovery.build('sqladmin', 'v1beta4')
-
-
-def obtain_instances() -> Site:
-    # Use a breakpoint in the code line below to debug your script.
-    # creds, project = google.auth.default()
-    #
-    # # creds.valid is False, and creds.token is None
-    # # Need to refresh credentials to populate those
-    #
-    # auth_req = google.auth.transport.requests.Request()
-    # creds.refresh(auth_req)
-    # Construct the service object for the interacting with the Cloud SQL Admin API.
-
-    credentials, project = get_credentials_and_project()
-    service = get_google_service(credentials)
-    req = service.instances().list(project=project)
-    resp = req.execute()
-    instances = [Instance(item.get("name"), item.get("region"), item.get("project"), item.get("connectionName"))
-                 for item in resp.get("items") if item.get("instanceType") == 'CLOUD_SQL_INSTANCE']
-    site = Site({})
-    for instance in instances:
-        site.update(instance)
-
-    save_site(site)
-    return site
-
-
-def parse_arguments():
-    parser = argparse.ArgumentParser(description="Cloud SQL Instance Manager",
-                                     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument("-a", "--archive", action="store_true", help="archive mode")
-    parser.add_argument("-v", "--verbose", action="store_true", help="increase verbosity")
-    parser.add_argument("-B", "--block-size", help="checksum blocksize")
-    parser.add_argument("--ignore-existing", action="store_true", help="skip files that exist")
-    parser.add_argument("--exclude", help="files to exclude")
-    parser.add_argument("src", help="Source location")
-    parser.add_argument("dest", help="Destination location")
-    args = parser.parse_args()
-    config = vars(args)
-    print(config)
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
+    config = load_config()
+    print(sys.argv)
+    parameters = get_parameters()
+    print(parameters)
+    site = load_site()
+    execute_command(parameters, config, site)
+    save_site(site)
+    save_config(config)
+
 
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
