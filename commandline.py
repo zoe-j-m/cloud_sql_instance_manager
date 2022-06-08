@@ -19,7 +19,9 @@ def get_parameters() -> Dict[str, str]:
     parser_add = subparsers.add_parser('add', help='add a new instance')
     parser_add.add_argument("connection name", help="long connection name from gcp")
     parser_add.add_argument("-n", '--nick', help='set nickname')
-#    parser_add.add_argument("-i", '--iam', const=True, default=False,help='run with enable iam login')
+
+    parser_import = subparsers.add_parser('import', help='import instances from gcp')
+    parser_import.add_argument("-p", '--project', help='project name')
 
     args = vars(parser.parse_args())
     print(args)

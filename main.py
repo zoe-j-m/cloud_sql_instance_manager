@@ -18,8 +18,12 @@ def execute_command(parameters: Dict[str,str], config : Configuration, site : Si
             instance = site.get_instance_by_name(parameters['name'], parameters['project'])
             if instance:
                 run_cloud_sql_proxy(config.cloud_sql_path, instance.connection_name, instance.port, instance.iam)
+                print(f"Started {instance.name} on port {instance.port}")
         case 'import':
             gcp.obtain_instances(site)
+            print(f"Imported {len(site.instances)} instances.")
+        case _:
+            print("Specify a command or ask for help with --help")
 
 
 
@@ -33,6 +37,7 @@ if __name__ == '__main__':
     execute_command(parameters, config, site)
     save_site(site)
     save_config(config)
+    sys.exit()
 
 
 

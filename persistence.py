@@ -22,7 +22,7 @@ def save_site(site : Site):
 
 def load_site() -> Site:
     if not os.path.exists(instance_filename):
-        return []
+        return Site({})
     else:
         with open(instance_filename, 'r') as f:
             json_str = f.read()
