@@ -26,7 +26,8 @@ def run_cloud_sql_proxy(cloud_sql_proxy_path: str, connection_name: str, port: i
 def stop_cloud_sql_proxy(pid : int, name: str) -> bool:
     process = psutil.Process(pid)
     if process:
-        if name in process.name():
+        cmdline = process.cmdline()
+        if name in str(cmdline):
             process.kill()
             return True
     else:

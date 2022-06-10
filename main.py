@@ -38,10 +38,16 @@ def execute_command(parameters: Dict[str, str], config: Configuration, site: Sit
                     else:
                         print("Could not locate process to stop, it has been removed from the running list")
                     running_instances.remove_running(instance.connection_name)
-                print(f"Stopped {instance.name} on port {instance.port}")
+        case 'update':
+            instance = site.get_instance_by_nick_name(parameters['name'], parameters['project'])
+            new_iam = parameters['iam']
+            if new_iam:
+                instance.set_iam(new_iam == 'true')
+                print(f"Updated connection: {instance.shortname} setting IAM: {instance.iam}")
         case 'import':
-            gcp.obtain_instances(site)
-            print(f"Imported {len(site.instances)} instances.")
+            prev_instances = len(site.instances);
+            gcp.obtain_instances(site, parameters['project'])
+            print(f"Imported {len(site.instances) - prev_instances} instances.")
         case _:
             print("Specify a command or ask for help with --help")
 

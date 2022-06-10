@@ -26,10 +26,9 @@ def get_parameters() -> Dict[str, str]:
     parser_import.add_argument('-p', '--project', help='project name')
 
     parser_update = subparsers.add_parser('update', help='update an new instance')
-    parser_update.add_argument('nick', help='nickname of connection')
+    parser_update.add_argument('name', help='nickname of connection')
     parser_update.add_argument('-p', '--project', help='specify which project name')
     parser_update.add_argument('-i', '--iam', help='set whether iam login is enabled')
 
     args = vars(parser.parse_args())
-    print(args)
     return args
