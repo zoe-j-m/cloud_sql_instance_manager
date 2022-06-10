@@ -21,3 +21,4 @@ def obtain_instances(site: Site):
                  for item in resp.get("items") if item.get("instanceType") == 'CLOUD_SQL_INSTANCE']
     for instance in instances:
         site.update(instance)
+    site.set_up_nicknames()

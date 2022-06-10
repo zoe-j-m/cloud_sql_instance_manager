@@ -1,5 +1,5 @@
 import json
-from typing import Dict
+from typing import Dict, Optional, List
 
 import jsonpickle
 
@@ -20,23 +20,37 @@ class Instance(object):
     def assign_port(self, port: int):
         self.port = port
 
-    def print(self):
-        print(f'Project: {self.project}, Nick: {self.shortname}, Port {self.port or "N/A"}, Name: {self.name}, Region: {self.region}, IAM Enabled: {self.iam}')
+    def print(self, pid: Optional[int]):
+        if not pid:
+            print(f'Project: {self.project}, Nick: {self.shortname}, Port {self.port or "N/A"}, Name: {self.name}, Region: {self.region}, IAM Enabled: {self.iam}')
+        else:
+            print(
+                f'Pid: {pid}, Project: {self.project}, Nick: {self.shortname}, Port {self.port or "N/A"}, Name: {self.name}, Region: {self.region}, IAM Enabled: {self.iam}')
 
-    def set_iam(self, iam : bool):
-        self.iam = True
+    def set_iam(self, iam: bool):
+        self.iam = iam
 
 
 
 class Site(object):
     def __init__(self, instances: Dict[str, Instance]):
+        self.nicknames = {}
         self.instances = instances
-        ports = [instance.port for instance in instances if instance.port is not None]
+        self.nextPort = 0
+        ports = [instance.port for instance in instances.values() if instance.port is not None]
         ports.insert(0, 5433)
         self.nextPort = max(ports) + 1
 
     def __repr__(self):
         return jsonpickle.encode(self)
+
+    def set_up_nicknames(self):
+        for instance in self.instances.values():
+            if instance.shortname in self.nicknames.keys():
+                if instance not in self.nicknames[instance.shortname]:
+                    self.nicknames[instance.shortname].append(instance)
+            else:
+                self.nicknames[instance.shortname] = [instance]
 
     def update(self, instance : Instance):
         if instance.connection_name not in self.instances.keys():
@@ -47,7 +61,21 @@ class Site(object):
 
     def print_list(self):
         for instance in self.instances.values():
-            instance.print()
+            instance.print(None)
 
-    def get_instance_by_name(self, name, project):
-        return self.instances[name]
+    def get_instance_by_nick_name(self, name, project) -> Optional[Instance]:
+        possibles = self.nicknames[name]
+        if project:
+            possibles = [possible for possible in possibles if possible.project == project]
+        if not possibles:
+            print("No instance found with that nickname")
+            return None
+        else:
+            if len(possibles) == 1:
+                return possibles[0]
+            else:
+                print("More than one instance with that nick - specify a project, or change the nickname")
+                return None
+
+
+
