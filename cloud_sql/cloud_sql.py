@@ -1,0 +1,82 @@
+import sys
+from typing import Dict
+
+from cloud_sql.gcp import obtain_instances
+from cloud_sql.cloudsqlproxy import run_cloud_sql_proxy, stop_cloud_sql_proxy, check_if_proxy_is_running
+from cloud_sql.commandline import get_parameters
+from cloud_sql.config import Configuration
+from cloud_sql.instances import Site
+from cloud_sql.persistence import save_site, load_site, load_config, save_config, load_running, save_running
+from cloud_sql.running_instances import RunningInstances
+
+
+def refresh_running(running_instances: RunningInstances):
+    running = running_instances.get_all_running()
+    for (connection_name, pid) in running.items():
+        if not check_if_proxy_is_running(pid, connection_name):
+            running_instances.remove_running(connection_name)
+
+
+def execute_command(parameters: Dict[str, str], config: Configuration, site: Site, running_instances: RunningInstances):
+    command = parameters['command']
+
+    if command == 'list':
+        site.print_list()
+    elif command == 'list-running':
+        running = running_instances.get_all_running()
+        for connection_name in running.keys():
+            instance = site.instances[connection_name]
+            instance.print(running[connection_name])
+        if len(running) == 0:
+            print("No running instances")
+    elif command == 'start':
+        instance = site.get_instance_by_nick_name(parameters['name'], parameters['project'])
+        if instance:
+            pid = run_cloud_sql_proxy(config.cloud_sql_path, instance.connection_name, instance.port, instance.iam)
+            running_instances.add_running(pid, instance.connection_name)
+            print(f"Started {instance.name} on port {instance.port}")
+    elif command == 'stop':
+        instance = site.get_instance_by_nick_name(parameters['name'], parameters['project'])
+        if instance:
+            pid = running_instances.get_running(instance.connection_name)
+            if pid:
+                if stop_cloud_sql_proxy(pid, instance.connection_name):
+                    print(f"Stopped {instance.name} on port {instance.port}")
+                else:
+                    print("Could not locate process to stop, it has been removed from the running list")
+                running_instances.remove_running(instance.connection_name)
+    elif command == 'update':
+        instance = site.get_instance_by_nick_name(parameters['name'], parameters['project'])
+        if instance:
+            new_iam = parameters['iam']
+            if new_iam:
+                instance.set_iam(new_iam == 'true')
+                print(f"Updated connection: {instance.shortname} setting IAM: {instance.iam}")
+            new_nick = parameters['nick']
+            if new_nick:
+                if site.get_instance_by_nick_name(new_nick, instance.project):
+                    print('That nick would not be unique, pick another.')
+                else:
+                    instance.shortname = new_nick
+                    site.set_up_nicknames()
+            print('Instance updated:')
+            instance.print(None)
+    elif command == 'import':
+        prev_instances = len(site.instances);
+        obtain_instances(site, parameters['project'])
+        print(f"Imported {len(site.instances) - prev_instances} instances.")
+    else:
+        print("Specify a command or ask for help with --help")
+
+
+def run():
+    app_config = load_config()
+    app_parameters = get_parameters()
+    site_info = load_site()
+    running = load_running()
+    refresh_running(running)
+    execute_command(app_parameters, app_config, site_info, running)
+    save_running(running)
+    save_site(site_info)
+    save_config(app_config)
+    sys.exit()

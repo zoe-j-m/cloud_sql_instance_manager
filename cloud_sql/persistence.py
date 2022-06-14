@@ -1,12 +1,10 @@
-from typing import List
-
 import jsonpickle
 import os
 import os.path
 
-from config import Configuration, default_configuration
-from instances import Site
-from running_instances import RunningInstances
+from cloud_sql.config import Configuration, default_configuration
+from cloud_sql.instances import Site
+from cloud_sql.running_instances import RunningInstances
 
 base_path = os.path.join(os.getenv("HOME"), ".cloudsql")
 instance_filename = os.path.join(base_path, "instances.json")

@@ -1,9 +1,8 @@
-import signal
 import subprocess
+from typing import Optional
 
-import pexpect as pexpect
 import psutil as psutil
-from pexpect import popen_spawn
+
 
 
 def run_cloud_sql_proxy(cloud_sql_proxy_path: str, connection_name: str, port: int, enable_iam: bool) -> int:
@@ -24,13 +23,21 @@ def run_cloud_sql_proxy(cloud_sql_proxy_path: str, connection_name: str, port: i
 
 
 def stop_cloud_sql_proxy(pid : int, name: str) -> bool:
+    process = check_if_proxy_is_running(pid, name)
+    if process:
+        process.kill()
+        return True
+    else:
+        return False
+
+
+def check_if_proxy_is_running(pid : int, name: str) -> Optional[psutil.Process]:
     process = psutil.Process(pid)
     if process:
         cmdline = process.cmdline()
         if name in str(cmdline):
-            process.kill()
-            return True
-    else:
-        return False
+            return process
+    return None
+
 
 

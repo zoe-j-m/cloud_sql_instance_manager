@@ -3,7 +3,7 @@ from typing import Optional
 import google
 from googleapiclient import discovery
 
-from instances import Instance, Site
+from cloud_sql.instances import Instance, Site
 
 
 def get_credentials_and_project():

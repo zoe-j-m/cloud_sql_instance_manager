@@ -8,7 +8,7 @@ def get_parameters() -> Dict[str, str]:
     subparsers = parser.add_subparsers(help='sub-command help', dest='command')
     parser_list = subparsers.add_parser('list', help='list current instances')
 
-    parser_list_running = subparsers.add_parser('list-running', help='list current instances')
+    parser_list_running = subparsers.add_parser('list-running', help='list running instances')
 
     parser_start = subparsers.add_parser('start', help='start instance')
     parser_start.add_argument('name', help='instance name or nickname')
@@ -25,10 +25,11 @@ def get_parameters() -> Dict[str, str]:
     parser_import = subparsers.add_parser('import', help='import instances from gcp')
     parser_import.add_argument('-p', '--project', help='project name')
 
-    parser_update = subparsers.add_parser('update', help='update an new instance')
+    parser_update = subparsers.add_parser('update', help='update an existing instance')
     parser_update.add_argument('name', help='nickname of connection')
     parser_update.add_argument('-p', '--project', help='specify which project name')
     parser_update.add_argument('-i', '--iam', help='set whether iam login is enabled')
+    parser_update.add_argument('-n', '--nick', help='set a new nickname')
 
     args = vars(parser.parse_args())
     return args

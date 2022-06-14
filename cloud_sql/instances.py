@@ -1,5 +1,5 @@
 import json
-from typing import Dict, Optional, List
+from typing import Dict, Optional
 
 import jsonpickle
 
@@ -22,14 +22,14 @@ class Instance(object):
 
     def print(self, pid: Optional[int]):
         if not pid:
-            print(f'Project: {self.project}, Nick: {self.shortname}, Port {self.port or "N/A"}, Name: {self.name}, Region: {self.region}, IAM Enabled: {self.iam}')
+            print(
+                f'Project: {self.project}, Nick: {self.shortname}, Port {self.port or "N/A"}, Name: {self.name}, Region: {self.region}, IAM Enabled: {self.iam}')
         else:
             print(
                 f'Pid: {pid}, Project: {self.project}, Nick: {self.shortname}, Port {self.port or "N/A"}, Name: {self.name}, Region: {self.region}, IAM Enabled: {self.iam}')
 
     def set_iam(self, iam: bool):
         self.iam = iam
-
 
 
 class Site(object):
@@ -45,6 +45,7 @@ class Site(object):
         return jsonpickle.encode(self)
 
     def set_up_nicknames(self):
+        self.nicknames = {}
         for instance in self.instances.values():
             if instance.shortname in self.nicknames.keys():
                 if instance not in self.nicknames[instance.shortname]:
@@ -52,7 +53,7 @@ class Site(object):
             else:
                 self.nicknames[instance.shortname] = [instance]
 
-    def update(self, instance : Instance):
+    def update(self, instance: Instance):
         if instance.connection_name not in self.instances.keys():
             if instance.port is None:
                 instance.port = self.nextPort
@@ -64,11 +65,18 @@ class Site(object):
             instance.print(None)
 
     def get_instance_by_nick_name(self, name, project) -> Optional[Instance]:
+
+        if name not in self.nicknames:
+            print("No instance found with that nickname")
+            return None
+
         possibles = self.nicknames[name]
+
         if project:
             possibles = [possible for possible in possibles if possible.project == project]
+
         if not possibles:
-            print("No instance found with that nickname")
+            print("No instance found with that nickname for that project")
             return None
         else:
             if len(possibles) == 1:
@@ -76,6 +84,3 @@ class Site(object):
             else:
                 print("More than one instance with that nick - specify a project, or change the nickname")
                 return None
-
-
-
