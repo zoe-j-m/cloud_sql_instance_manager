@@ -4,6 +4,14 @@ from typing import Dict, Optional
 import jsonpickle
 
 
+class InstanceNotFoundError(Exception):
+    pass
+
+
+class DuplicateInstanceError(Exception):
+    pass
+
+
 class Instance(object):
     def __init__(self, name: str, region: str, project: str, connection_name: str):
         self.port = None
@@ -67,8 +75,7 @@ class Site(object):
     def get_instance_by_nick_name(self, name, project) -> Optional[Instance]:
 
         if name not in self.nicknames:
-            print("No instance found with that nickname")
-            return None
+            raise InstanceNotFoundError("No instance found with that nickname")
 
         possibles = self.nicknames[name]
 
@@ -76,11 +83,11 @@ class Site(object):
             possibles = [possible for possible in possibles if possible.project == project]
 
         if not possibles:
-            print("No instance found with that nickname for that project")
-            return None
+            raise InstanceNotFoundError("No instance found with that nickname for that project")
         else:
             if len(possibles) == 1:
                 return possibles[0]
             else:
-                print("More than one instance with that nick - specify a project, or change the nickname")
-                return None
+                raise DuplicateInstanceError(
+                    "More than one instance with that nick - specify a project, or change the nickname"
+                )
