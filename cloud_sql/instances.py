@@ -1,5 +1,5 @@
 import json
-from typing import Dict, Optional
+from typing import Dict, Optional, List
 
 import jsonpickle
 
@@ -28,13 +28,11 @@ class Instance(object):
     def assign_port(self, port: int):
         self.port = port
 
-    def print(self, pid: Optional[int]):
+    def print(self, pid: Optional[int]) -> str:
         if not pid:
-            print(
-                f'Project: {self.project}, Nick: {self.shortname}, Port {self.port or "N/A"}, Name: {self.name}, Region: {self.region}, IAM Enabled: {self.iam}')
+            return f'Project: {self.project}, Nick: {self.shortname}, Port {self.port or "N/A"}, Name: {self.name}, Region: {self.region}, IAM Enabled: {self.iam}'
         else:
-            print(
-                f'Pid: {pid}, Project: {self.project}, Nick: {self.shortname}, Port {self.port or "N/A"}, Name: {self.name}, Region: {self.region}, IAM Enabled: {self.iam}')
+            return f'Pid: {pid}, Project: {self.project}, Nick: {self.shortname}, Port {self.port or "N/A"}, Name: {self.name}, Region: {self.region}, IAM Enabled: {self.iam}'
 
     def set_iam(self, iam: bool):
         self.iam = iam
@@ -68,9 +66,10 @@ class Site(object):
                 self.nextPort += 1
             self.instances[instance.connection_name] = instance
 
-    def print_list(self):
-        for instance in self.instances.values():
-            instance.print(None)
+    def print_list(self, project: Optional[str]) -> List[str]:
+        return [instance.print(None) for instance in
+                sorted(self.instances.values(), key=lambda instance: f'{instance.project}{instance.shortname}')
+                if (not project) or (instance.project == project)]
 
     def get_instance_by_nick_name(self, name, project) -> Optional[Instance]:
 

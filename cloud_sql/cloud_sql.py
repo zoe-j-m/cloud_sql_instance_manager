@@ -29,13 +29,15 @@ def execute_command(parameters: Dict[str, str], config: Configuration, site: Sit
     command = parameters['command']
 
     if command == 'list':
-        site.print_list()
+        lines = site.print_list(parameters['project'])
+        for line in lines:
+            print(line)
 
     elif command == 'list-running':
         running = running_instances.get_all_running()
         for connection_name in running.keys():
             instance = site.instances[connection_name]
-            instance.print(running[connection_name])
+            print(instance.print(running[connection_name]))
         if len(running) == 0:
             print("No running instances")
 
@@ -77,7 +79,7 @@ def execute_command(parameters: Dict[str, str], config: Configuration, site: Sit
                     instance.shortname = new_nick
                     site.set_up_nicknames()
             print('Instance updated:')
-            instance.print(None)
+            print(instance.print(None))
 
     elif command == 'import':
         prev_instances = len(site.instances);
