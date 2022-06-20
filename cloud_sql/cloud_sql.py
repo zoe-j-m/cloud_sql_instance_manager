@@ -43,8 +43,13 @@ def execute_command(parameters: Dict[str, str], config: Configuration, site: Sit
             print("No running instances")
 
     elif command == 'start':
-        instance = get_instance_from_nick(site, parameters['name'], parameters['project'])
-        if instance:
+        if parameters['name'] == 'default':
+            instances = site.get_default_instances(parameters['project'])
+            if len(instances) == 0:
+                print("No default instances found")
+        else:
+            instances = [get_instance_from_nick(site, parameters['name'], parameters['project'])]
+        for instance in instances:
             if running_instances.get_running(instance.connection_name):
                 print(f"{instance.shortname} is already running.")
             else:
@@ -53,14 +58,24 @@ def execute_command(parameters: Dict[str, str], config: Configuration, site: Sit
                 print(f"Started {instance.name} on port {instance.port}")
 
     elif command == 'stop':
-        instance = get_instance_from_nick(site, parameters['name'], parameters['project'])
-        if instance:
+        project = parameters['project']
+        nickname = parameters['name']
+        if nickname == 'all':
+            instances = [site.instances[name] for name in running_instances.instances.keys() if
+                         (not project or project == site.instances[name].project)]
+            if len(instances) == 0:
+                print("No running instances found")
+        else:
+            instances = [get_instance_from_nick(site, nickname, project)]
+
+        for instance in instances:
             pid = running_instances.get_running(instance.connection_name)
             if pid:
                 if stop_cloud_sql_proxy(pid, instance.connection_name):
                     print(f"Stopped {instance.name} on port {instance.port}")
                 else:
-                    print("Could not locate process to stop, it has been removed from the running list")
+                    print(
+                        f'Could not locate process to stop for {instance.shortname}, it has been removed from the running list')
                 running_instances.remove_running(instance.connection_name)
             else:
                 print(f"{instance.shortname} is not running")
@@ -71,7 +86,7 @@ def execute_command(parameters: Dict[str, str], config: Configuration, site: Sit
 
             new_iam = parameters['iam']
             if new_iam:
-                instance.set_iam(new_iam == 'true')
+                instance.set_iam(new_iam.lower() == 'true')
 
             new_nick = parameters['nick']
             if new_nick:
@@ -84,6 +99,11 @@ def execute_command(parameters: Dict[str, str], config: Configuration, site: Sit
                 else:
                     instance.shortname = new_nick
                     site.set_up_nicknames()
+
+            new_default = parameters['default']
+            if new_default:
+                instance.set_default(new_default.lower() == 'true')
+
             print('Instance updated:')
             print(instance.print(None))
 

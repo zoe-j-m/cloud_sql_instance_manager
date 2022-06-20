@@ -12,11 +12,11 @@ def get_parameters() -> Dict[str, str]:
     parser_list_running = subparsers.add_parser('list-running', help='list running instances')
 
     parser_start = subparsers.add_parser('start', help='start instance')
-    parser_start.add_argument('name', help='instance name or nickname')
+    parser_start.add_argument('name', help='instance nickname or "default" to start all default instances')
     parser_start.add_argument('-p', '--project', help='project name')
 
     parser_stop = subparsers.add_parser('stop', help='stop a running instance')
-    parser_stop.add_argument('name', help='instance name or nickname')
+    parser_stop.add_argument('name', help='instance nickname or "all"')
     parser_stop.add_argument('-p', '--project', help='project name')
 
     parser_add = subparsers.add_parser('add', help='add a new instance')
@@ -31,6 +31,7 @@ def get_parameters() -> Dict[str, str]:
     parser_update.add_argument('-p', '--project', help='specify which project name')
     parser_update.add_argument('-i', '--iam', help='set whether iam login is enabled')
     parser_update.add_argument('-n', '--nick', help='set a new nickname')
+    parser_update.add_argument('-d', '--default', help='set whether instance is a default instance')
 
     parser_config = subparsers.add_parser('config', help='update configuration')
     parser_config.add_argument('-p', '--path', help='path to the cloud_sql_proxy executable')

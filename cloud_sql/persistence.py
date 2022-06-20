@@ -26,7 +26,9 @@ def load_site() -> Site:
     else:
         with open(instance_filename, 'r') as f:
             json_str = f.read()
-            return jsonpickle.decode(json_str)
+            site = jsonpickle.decode(json_str)
+            site.check()
+            return site
 
 
 def save_config(config: Configuration):

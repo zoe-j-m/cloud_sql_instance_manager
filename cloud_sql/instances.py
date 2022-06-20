@@ -16,13 +16,14 @@ class Instance(object):
     def __init__(self, name: str, region: str, project: str, connection_name: str):
         self.port = None
         self.iam = False
+        self.default = False
         self.name = name
         self.shortname = name[:name.find("-instance-")]
         self.region = region
         self.project = project
         self.connection_name = connection_name
 
-    def __repr__(self): # pragma: no cover
+    def __repr__(self):  # pragma: no cover
         return json.dumps(self.__dict__)
 
     def assign_port(self, port: int):
@@ -30,12 +31,19 @@ class Instance(object):
 
     def print(self, pid: Optional[int]) -> str:
         if not pid:
-            return f'Project: {self.project}, Nick: {self.shortname}, Port {self.port or "N/A"}, Name: {self.name}, Region: {self.region}, IAM Enabled: {self.iam}'
+            return f'Project: {self.project}, Nick: {self.shortname}, Port {self.port or "N/A"}, Name: {self.name}, Region: {self.region}, IAM Enabled: {self.iam}, Default: {self.default}'
         else:
-            return f'Pid: {pid}, Project: {self.project}, Nick: {self.shortname}, Port {self.port or "N/A"}, Name: {self.name}, Region: {self.region}, IAM Enabled: {self.iam}'
+            return f'Pid: {pid}, Project: {self.project}, Nick: {self.shortname}, Port {self.port or "N/A"}, Name: {self.name}, Region: {self.region}, IAM Enabled: {self.iam}, Default: {self.default}'
 
     def set_iam(self, iam: bool):
         self.iam = iam
+
+    def set_default(self, default: bool):
+        self.default = default
+
+    def check(self):
+        if not hasattr(self, 'default'):
+            self.default = False
 
 
 class Site(object):
@@ -47,7 +55,7 @@ class Site(object):
         ports.insert(0, 5433)
         self.nextPort = max(ports) + 1
 
-    def __repr__(self): # pragma: no cover
+    def __repr__(self):  # pragma: no cover
         return jsonpickle.encode(self)
 
     def set_up_nicknames(self):
@@ -90,3 +98,11 @@ class Site(object):
                 raise DuplicateInstanceError(
                     "More than one instance with that nick - specify a project, or change the nickname"
                 )
+
+    def get_default_instances(self, project) -> List[Instance]:
+        return [instance for instance in self.instances.values() if
+                (not project or instance.project == project) and instance.default]
+
+    def check(self):
+        for instance in self.instances.values():
+            instance.check()

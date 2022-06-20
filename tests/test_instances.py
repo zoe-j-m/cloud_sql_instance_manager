@@ -24,7 +24,7 @@ class TestInstance:
         instance.assign_port(self.port)
         no_pid = instance.print(None)
         pid = instance.print(4512)
-        assert no_pid == 'Project: project-1, Nick: database-postgres, Port 5111, Name: database-postgres-instance-1234, Region: region-1, IAM Enabled: False'
+        assert no_pid == 'Project: project-1, Nick: database-postgres, Port 5111, Name: database-postgres-instance-1234, Region: region-1, IAM Enabled: False, Default: False'
         assert pid == f'Pid: 4512, {no_pid}'
 
     def test_set_iam(self):
@@ -33,8 +33,14 @@ class TestInstance:
         instance.set_iam(True)
         assert instance.iam is True
 
-class TestSite:
+    def test_set_default(self):
+        instance = Instance(self.name, self.region, self.project, self.connection_name)
+        assert instance.default is False
+        instance.set_default(True)
+        assert instance.default is True
 
+
+class TestSite:
     name1 = 'database-postgres-instance-1234'
     project1 = 'project-1'
     region1 = 'region-1'
@@ -46,6 +52,7 @@ class TestSite:
     region2 = 'region-2'
     instance2 = Instance(name2, region2, project2, f'{project2}:{region2}:{name2}')
     instance2.port = 5512
+    instance2.set_default(True)
 
     def test_setup_nicknames(self):
         site = Site({self.name1: self.instance1, self.name2: self.instance2})
@@ -63,7 +70,7 @@ class TestSite:
         site = Site({self.name1: self.instance1, self.name2: self.instance2})
         values = site.print_list(self.project1)
         assert len(values) == 1
-        assert values[0] == 'Project: project-1, Nick: database-postgres, Port 5511, Name: database-postgres-instance-1234, Region: region-1, IAM Enabled: False'
+        assert values[0] == 'Project: project-1, Nick: database-postgres, Port 5511, Name: database-postgres-instance-1234, Region: region-1, IAM Enabled: False, Default: False'
 
     def test_get_instance_by_nickname(self):
         site = Site({self.name1: self.instance1, self.name2: self.instance2})
@@ -84,3 +91,8 @@ class TestSite:
         with raises(DuplicateInstanceError):
             site.get_instance_by_nick_name('database-postgres', None)
 
+    def test_get_default_instances(self):
+        site = Site({self.name1: self.instance1, self.name2: self.instance2})
+        assert site.get_default_instances(None) == [self.instance2]
+        assert site.get_default_instances('project-1') == []
+        assert site.get_default_instances('project-2') == [self.instance2]

@@ -56,10 +56,23 @@ cloud_sql update NICKNAME --iam true
 cloud_sql start NICK-NAME 
 ```
 
+### Starting all default instances
+
+```bash
+cloud_sql start default 
+```
+Add `--project YOUR-PROJECT` to start only default instances for a particular project
+
 ### Stopping an instance
 
 ```bash
 cloud_sql stop NICK-NAME 
+```
+
+### Stopping all running instances
+
+```bash
+cloud_sql stop all
 ```
 
 ### Listing instances
