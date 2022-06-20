@@ -22,7 +22,7 @@ class Instance(object):
         self.project = project
         self.connection_name = connection_name
 
-    def __repr__(self):
+    def __repr__(self): # pragma: no cover
         return json.dumps(self.__dict__)
 
     def assign_port(self, port: int):
@@ -47,7 +47,7 @@ class Site(object):
         ports.insert(0, 5433)
         self.nextPort = max(ports) + 1
 
-    def __repr__(self):
+    def __repr__(self): # pragma: no cover
         return jsonpickle.encode(self)
 
     def set_up_nicknames(self):

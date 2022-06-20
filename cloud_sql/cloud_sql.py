@@ -4,7 +4,7 @@ from typing import Dict, Optional
 from cloud_sql.gcp import obtain_instances
 from cloud_sql.cloudsqlproxy import run_cloud_sql_proxy, stop_cloud_sql_proxy, check_if_proxy_is_running
 from cloud_sql.commandline import get_parameters
-from cloud_sql.config import Configuration
+from cloud_sql.config import Configuration, PathNotFoundError
 from cloud_sql.instances import Site, InstanceNotFoundError, DuplicateInstanceError, Instance
 from cloud_sql.persistence import save_site, load_site, load_config, save_config, load_running, save_running
 from cloud_sql.running_instances import RunningInstances
@@ -91,6 +91,17 @@ def execute_command(parameters: Dict[str, str], config: Configuration, site: Sit
         prev_instances = len(site.instances);
         obtain_instances(site, parameters['project'])
         print(f"Imported {len(site.instances) - prev_instances} instances.")
+
+    elif command == 'config':
+        new_path = parameters['path']
+        if new_path:
+            try:
+                config.new_path(new_path)
+                print(f"Updated cloud_sql_proxy path to {new_path}")
+            except PathNotFoundError:
+                print("That file appears not to exist. It needs to be the fully qualified path.")
+        else:
+            print("Provide the location of the cloud_sql_proxy executable as parameter --path")
 
     else:
         print("Specify a command or ask for help with --help")

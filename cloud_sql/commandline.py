@@ -32,5 +32,8 @@ def get_parameters() -> Dict[str, str]:
     parser_update.add_argument('-i', '--iam', help='set whether iam login is enabled')
     parser_update.add_argument('-n', '--nick', help='set a new nickname')
 
+    parser_config = subparsers.add_parser('config', help='update configuration')
+    parser_config.add_argument('-p', '--path', help='path to the cloud_sql_proxy executable')
+
     args = vars(parser.parse_args())
     return args

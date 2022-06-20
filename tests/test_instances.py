@@ -1,6 +1,6 @@
 from _pytest.python_api import raises
 
-from cloud_sql.instances import Instance, Site, InstanceNotFoundError
+from cloud_sql.instances import Instance, Site, InstanceNotFoundError, DuplicateInstanceError
 
 
 class TestInstance:
@@ -73,3 +73,14 @@ class TestSite:
 
         with_nick = site.get_instance_by_nick_name('database-postgres', self.project1)
         assert with_nick == self.instance1
+
+        name3 = 'db-pg-instance-3'
+        instance = Instance(name3, self.region1, self.project1, f'{self.project1}:{self.region1}:{name3}')
+        site.update(instance)
+        site.set_up_nicknames()
+        with raises(InstanceNotFoundError):
+            site.get_instance_by_nick_name(instance.shortname, self.project2)
+
+        with raises(DuplicateInstanceError):
+            site.get_instance_by_nick_name('database-postgres', None)
+
