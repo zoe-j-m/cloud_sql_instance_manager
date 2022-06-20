@@ -44,6 +44,12 @@ cloud_sql update ORIGINAL-NICKNAME --nick NEW-NICKNAME
 
 At any point, you can have more than one instance with the same nickname but different projects, and you can differentiate with `--project PROJECT-NAME`
 
+### IAM
+Set whether the manager will start the proxy with `--enable_iam_login` 
+```bash
+cloud_sql update NICKNAME --iam true
+```
+
 ### Starting an instance
 
 ```bash
