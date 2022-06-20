@@ -2,7 +2,7 @@ import subprocess
 from typing import Optional
 
 import psutil as psutil
-
+from psutil import NoSuchProcess
 
 
 def run_cloud_sql_proxy(cloud_sql_proxy_path: str, connection_name: str, port: int, enable_iam: bool) -> int:
@@ -31,8 +31,11 @@ def stop_cloud_sql_proxy(pid : int, name: str) -> bool:
         return False
 
 
-def check_if_proxy_is_running(pid : int, name: str) -> Optional[psutil.Process]:
-    process = psutil.Process(pid)
+def check_if_proxy_is_running(pid: int, name: str) -> Optional[psutil.Process]:
+    try:
+        process = psutil.Process(pid)
+    except NoSuchProcess:
+        process = None
     if process:
         cmdline = process.cmdline()
         if name in str(cmdline):

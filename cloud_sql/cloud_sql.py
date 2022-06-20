@@ -12,7 +12,8 @@ from cloud_sql.running_instances import RunningInstances
 
 def refresh_running(running_instances: RunningInstances):
     running = running_instances.get_all_running()
-    for (connection_name, pid) in running.items():
+    old_running = list(running.items())
+    for (connection_name, pid) in old_running:
         if not check_if_proxy_is_running(pid, connection_name):
             running_instances.remove_running(connection_name)
 
@@ -44,9 +45,12 @@ def execute_command(parameters: Dict[str, str], config: Configuration, site: Sit
     elif command == 'start':
         instance = get_instance_from_nick(site, parameters['name'], parameters['project'])
         if instance:
-            pid = run_cloud_sql_proxy(config.cloud_sql_path, instance.connection_name, instance.port, instance.iam)
-            running_instances.add_running(pid, instance.connection_name)
-            print(f"Started {instance.name} on port {instance.port}")
+            if running_instances.get_running(instance.connection_name):
+                print(f"{instance.shortname} is already running.")
+            else:
+                pid = run_cloud_sql_proxy(config.cloud_sql_path, instance.connection_name, instance.port, instance.iam)
+                running_instances.add_running(pid, instance.connection_name)
+                print(f"Started {instance.name} on port {instance.port}")
 
     elif command == 'stop':
         instance = get_instance_from_nick(site, parameters['name'], parameters['project'])
@@ -58,6 +62,8 @@ def execute_command(parameters: Dict[str, str], config: Configuration, site: Sit
                 else:
                     print("Could not locate process to stop, it has been removed from the running list")
                 running_instances.remove_running(instance.connection_name)
+            else:
+                print(f"{instance.shortname} is not running")
 
     elif command == 'update':
         instance = get_instance_from_nick(site, parameters['name'], parameters['project'])
