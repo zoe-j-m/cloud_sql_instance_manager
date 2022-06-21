@@ -41,7 +41,7 @@ def print_list_running(site: Site, running_instances: RunningInstances):
         print("No running instances")
 
 
-def start(site: Site, running_instances: RunningInstances, name: str, project: Optional[str]):
+def start(config: Configuration, site: Site, running_instances: RunningInstances, name: str, project: Optional[str]):
     if name == 'default':
         instances = site.get_default_instances(project)
         if len(instances) == 0:
@@ -132,7 +132,7 @@ def execute_command(parameters: Dict[str, str], config: Configuration, site: Sit
         print_list_running(site, running_instances)
 
     elif command == 'start':
-        start(site, running_instances, parameters['name'], parameters['project'])
+        start(config, site, running_instances, parameters['name'], parameters['project'])
 
     elif command == 'stop':
         stop(site, running_instances, parameters['name'], parameters['project'])
