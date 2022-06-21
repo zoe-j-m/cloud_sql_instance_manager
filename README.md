@@ -101,5 +101,4 @@ Please make sure to update tests as appropriate.
 ## TODO List
 
 * Export to DBeaver
-* Default instances - set and unset, start all default
-* Stop all
+* Use nickname or name interchangeably
