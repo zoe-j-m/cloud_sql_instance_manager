@@ -7,7 +7,8 @@ from cloud_sql.instances import Instance, Site
 
 
 def get_credentials_and_project():
-    return google.auth.default()
+    a = google.auth.default()
+    return a
 
 
 def get_google_service(credentials):

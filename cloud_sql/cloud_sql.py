@@ -2,11 +2,11 @@ import sys
 from typing import Dict, Optional
 
 from cloud_sql.gcp import obtain_instances
-from cloud_sql.cloudsqlproxy import run_cloud_sql_proxy, stop_cloud_sql_proxy, check_if_proxy_is_running
+from cloud_sql.cloud_sql_proxy import run_cloud_sql_proxy, stop_cloud_sql_proxy, check_if_proxy_is_running
 from cloud_sql.commandline import get_parameters
 from cloud_sql.config import Configuration, PathNotFoundError
 from cloud_sql.instances import Site, InstanceNotFoundError, DuplicateInstanceError, Instance
-from cloud_sql.persistence import save_site, load_site, load_config, save_config, load_running, save_running
+from cloud_sql.persistence import Persistence, default_base_path
 from cloud_sql.running_instances import RunningInstances
 
 
@@ -152,13 +152,14 @@ def execute_command(parameters: Dict[str, str], config: Configuration, site: Sit
 
 
 def run():
-    app_config = load_config()
-    app_parameters = get_parameters()
-    site_info = load_site()
-    running = load_running()
+    persistence = Persistence(default_base_path())
+    app_config = persistence.load_config()
+    app_parameters = get_parameters(sys.argv[1:])
+    site_info = persistence.load_site()
+    running = persistence.load_running()
     refresh_running(running)
     execute_command(app_parameters, app_config, site_info, running)
-    save_running(running)
-    save_site(site_info)
-    save_config(app_config)
+    persistence.save_running(running)
+    persistence.save_site(site_info)
+    persistence.save_config(app_config)
     sys.exit()

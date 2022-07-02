@@ -1,8 +1,8 @@
 import argparse
-from typing import Dict
+from typing import Dict, List
 
 
-def get_parameters() -> Dict[str, str]:
+def get_parameters(args: List[str]) -> Dict[str, str]:
     parser = argparse.ArgumentParser(description='Cloud SQL Instance Manager',
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     subparsers = parser.add_subparsers(help='sub-command help', dest='command')
@@ -36,5 +36,5 @@ def get_parameters() -> Dict[str, str]:
     parser_config = subparsers.add_parser('config', help='update configuration')
     parser_config.add_argument('-p', '--path', help='path to the cloud_sql_proxy executable')
 
-    args = vars(parser.parse_args())
+    args = vars(parser.parse_args(args))
     return args
