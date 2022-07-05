@@ -45,6 +45,8 @@ def get_parameters(args: List[str]) -> Dict[str, str]:
     parser_config.add_argument(
         "-p", "--path", help="path to the cloud_sql_proxy executable"
     )
-
+    parser_config.add_argument(
+        "-i", "--iam_default", help="New connections have enable_iam set to this value"
+    )
     args = vars(parser.parse_args(args))
     return args

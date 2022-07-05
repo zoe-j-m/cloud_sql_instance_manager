@@ -13,9 +13,16 @@ class DuplicateInstanceError(Exception):
 
 
 class Instance(object):
-    def __init__(self, name: str, region: str, project: str, connection_name: str):
+    def __init__(
+        self,
+        name: str,
+        region: str,
+        project: str,
+        connection_name: str,
+        enable_iam: bool,
+    ):
         self.port = None
-        self.iam = False
+        self.iam = enable_iam
         self.default = False
         self.name = name
         self.nick_name = name[: name.find("-instance-")]

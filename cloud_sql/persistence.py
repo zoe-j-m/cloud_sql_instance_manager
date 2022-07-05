@@ -48,7 +48,9 @@ class Persistence(object):
         else:
             with open(self.config_filename, "r") as f:
                 json_str = f.read()
-                return jsonpickle.decode(json_str)
+                config = jsonpickle.decode(json_str)
+                config.check()
+                return config
 
     def save_running(self, running_instances: RunningInstances):
         if not os.path.exists(os.path.dirname(self.running_instances_filename)):

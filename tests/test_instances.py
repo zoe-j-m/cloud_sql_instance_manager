@@ -22,6 +22,7 @@ class TestInstance:
             test_fixtures.region1,
             test_fixtures.project1,
             test_fixtures.connection_name1,
+            False,
         )
         assert instance.nick_name == "database-postgres"
 
@@ -31,6 +32,7 @@ class TestInstance:
             test_fixtures.region1,
             test_fixtures.project1,
             test_fixtures.connection_name1,
+            False,
         )
         instance.assign_port(test_fixtures.port1)
         assert instance.port == 5511
@@ -41,6 +43,7 @@ class TestInstance:
             test_fixtures.region1,
             test_fixtures.project1,
             test_fixtures.connection_name1,
+            False,
         )
         instance.assign_port(test_fixtures.port1)
         no_pid = instance.print(None)
@@ -57,6 +60,7 @@ class TestInstance:
             test_fixtures.region1,
             test_fixtures.project1,
             test_fixtures.connection_name1,
+            False,
         )
         assert instance.iam is False
         instance.set_iam(True)
@@ -68,6 +72,7 @@ class TestInstance:
             test_fixtures.region1,
             test_fixtures.project1,
             test_fixtures.connection_name1,
+            False,
         )
         instance.set_default(True)
         assert instance.default is True
@@ -100,6 +105,7 @@ class TestSite:
             test_fixtures.region1,
             test_fixtures.project1,
             f"{test_fixtures.project1}:{test_fixtures.region1}:{name3}",
+            False,
         )
         site.update(instance)
         assert instance.port == 5513
@@ -140,6 +146,7 @@ class TestSite:
             test_fixtures.region1,
             test_fixtures.project1,
             f"{test_fixtures.project1}:{test_fixtures.region1}:{name3}",
+            False,
         )
         site.update(instance)
         site.set_up_nicknames()

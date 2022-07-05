@@ -27,7 +27,7 @@ def add_instance_side_effect(*args):
     instance.name = test_fixtures.name1
     instance.nick_name = "nick"
     instance.project = test_fixtures.project1
-    args[0].instances = {test_fixtures.connection_name1: instance}
+    args[1].instances = {test_fixtures.connection_name1: instance}
 
 
 class TestInstanceManager:
@@ -246,9 +246,13 @@ class TestInstanceManager:
         site = MagicMock(spec=Site)
         site.instances = {}
 
+        config = MagicMock(spec=Configuration)
+
         mock_obtain_instances.side_effect = add_instance_side_effect
-        import_instances(site, test_fixtures.project1)
-        mock_obtain_instances.assert_called_once_with(site, test_fixtures.project1)
+        import_instances(config, site, test_fixtures.project1)
+        mock_obtain_instances.assert_called_once_with(
+            config, site, test_fixtures.project1
+        )
         mock_print.assert_called_once_with("Imported 1 instances.")
 
     @mock.patch("cloud_sql.instance_manager.get_instance_from_nick")
@@ -297,24 +301,31 @@ class TestInstanceManager:
     @mock.patch("cloud_sql.instance_manager.print")
     def test_update_config(self, mock_print):
         config = MagicMock(spec=Configuration)
-        update_config(config, None)
-        mock_print.assert_called_once_with(
-            "Provide the location of the cloud_sql_proxy executable as parameter --path"
-        )
+        config.print.return_value = "printed config"
+        update_config(config, None, None)
+        mock_print.assert_called_once_with("printed config")
         mock_print.reset_mock()
 
-        update_config(config, "/new/path")
+        update_config(config, "/new/path", None)
         config.new_path.assert_called_once_with("/new/path")
+        config.set_enable_iam_by_default.assert_not_called()
         mock_print.assert_called_once_with("Updated cloud_sql_proxy path to /new/path")
         mock_print.reset_mock()
         config.new_path.reset_mock()
 
         config.new_path.side_effect = PathNotFoundError
-        update_config(config, "/new/path")
+        update_config(config, "/new/path", None)
         config.new_path.assert_called_once_with("/new/path")
         mock_print.assert_called_once_with(
             "That file appears not to exist. It needs to be the fully qualified path."
         )
+        mock_print.reset_mock()
+        config.new_path.reset_mock()
+        config.enable_iam_by_default = True
+        update_config(config, None, "true")
+        config.new_path.assert_not_called()
+        config.set_enable_iam_by_default.assert_called_once_with(True)
+        mock_print.assert_called_once_with("Updated default IAM setting to: True")
 
     @mock.patch("cloud_sql.instance_manager.print_list")
     @mock.patch("cloud_sql.instance_manager.print_list_running")
@@ -382,11 +393,13 @@ class TestInstanceManager:
 
         parameters = {"command": "import", "project": test_fixtures.project1}
         execute_command(parameters, config, site, running_instances)
-        mock_import_instances.assert_called_once_with(site, test_fixtures.project1)
+        mock_import_instances.assert_called_once_with(
+            config, site, test_fixtures.project1
+        )
 
-        parameters = {"command": "config", "path": "/test/path"}
+        parameters = {"command": "config", "path": "/test/path", "iam_default": "true"}
         execute_command(parameters, config, site, running_instances)
-        mock_update_config.assert_called_once_with(config, "/test/path")
+        mock_update_config.assert_called_once_with(config, "/test/path", "true")
 
         parameters = {"command": "fish"}
         execute_command(parameters, config, site, running_instances)

@@ -109,9 +109,9 @@ def stop(
             print(f"{instance.nick_name} is not running")
 
 
-def import_instances(site: Site, project: Optional[str]):
+def import_instances(config: Configuration, site: Site, project: Optional[str]):
     prev_instances = len(site.instances)
-    obtain_instances(site, project)
+    obtain_instances(config, site, project)
     print(f"Imported {len(site.instances) - prev_instances} instances.")
 
 
@@ -149,7 +149,9 @@ def update(
         print(instance.print(None))
 
 
-def update_config(config: Configuration, new_path: Optional[str]):
+def update_config(
+    config: Configuration, new_path: Optional[str], new_enable_iam: Optional[str]
+):
     if new_path:
         try:
             config.new_path(new_path)
@@ -158,10 +160,13 @@ def update_config(config: Configuration, new_path: Optional[str]):
             print(
                 "That file appears not to exist. It needs to be the fully qualified path."
             )
-    else:
-        print(
-            "Provide the location of the cloud_sql_proxy executable as parameter --path"
-        )
+
+    if new_enable_iam:
+        config.set_enable_iam_by_default(new_enable_iam.lower() == "true")
+        print(f"Updated default IAM setting to: {config.enable_iam_by_default}")
+
+    if not new_enable_iam and not new_path:
+        print(config.print())
 
 
 def execute_command(
@@ -197,10 +202,10 @@ def execute_command(
         )
 
     elif command == "import":
-        import_instances(site, parameters["project"])
+        import_instances(config, site, parameters["project"])
 
     elif command == "config":
-        update_config(config, parameters["path"])
+        update_config(config, parameters["path"], parameters["iam_default"])
 
     else:
         print("Specify a command or ask for help with --help")

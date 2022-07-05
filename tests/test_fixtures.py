@@ -7,7 +7,7 @@ project1 = "project-1"
 region1 = "region-1"
 port1 = 5511
 connection_name1 = f"{project1}:{region1}:{name1}"
-instance1 = Instance(name1, region1, project1, connection_name1)
+instance1 = Instance(name1, region1, project1, connection_name1, False)
 instance1.port = port1
 name2 = "database-postgres-instance-1235"
 project2 = "project-2"
@@ -15,13 +15,13 @@ region2 = "region-2"
 
 connection_name2 = f"{project2}:{region2}:{name2}"
 port2 = 5512
-instance2 = Instance(name2, region2, project2, f"{project2}:{region2}:{name2}")
+instance2 = Instance(name2, region2, project2, f"{project2}:{region2}:{name2}", False)
 instance2.port = port2
 instance2.set_default(True)
 
 site1 = Site({name1: instance1, name2: instance2})
 
-config1 = Configuration("path/to/cloud_sql")
+config1 = Configuration("path/to/cloud_sql", False)
 
 pid1 = 1111
 pid2 = 1112

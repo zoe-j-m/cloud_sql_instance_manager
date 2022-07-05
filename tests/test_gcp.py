@@ -1,3 +1,4 @@
+from cloud_sql.config import Configuration
 from cloud_sql.gcp import obtain_instances
 from cloud_sql.instances import Site
 from tests import test_fixtures
@@ -33,16 +34,19 @@ class TestGcp:
         service = MagicMock()
         instances = MagicMock()
         request = MagicMock()
+        config = MagicMock(spec=Configuration)
+        config.enable_iam_by_default = True
         mock_auth.return_value = "creds1", test_fixtures.project1
         mock_discovery.return_value = service
         service.instances.return_value = instances
         instances.list.return_value = request
         request.execute.return_value = self.test_response
         site = Site({})
-        obtain_instances(site, None)
+        obtain_instances(config, site, None)
         assert len(site.instances) == 1
+        assert site.instances[test_fixtures.connection_name1].iam is True
         assert "database-postgres" in site.nicknames
 
         instances.list.reset_mock()
-        obtain_instances(site, "override")
+        obtain_instances(config, site, "override")
         instances.list.assert_called_once_with(project="override")
