@@ -5,15 +5,16 @@ import psutil as psutil
 from psutil import NoSuchProcess
 
 
-def run_cloud_sql_proxy(cloud_sql_proxy_path: str, connection_name: str, port: int, enable_iam: bool) -> int:
-    instance_description = '-instances={}=tcp:{}'.format(
-        connection_name, port)
+def run_cloud_sql_proxy(
+    cloud_sql_proxy_path: str, connection_name: str, port: int, enable_iam: bool
+) -> int:
+    instance_description = "-instances={}=tcp:{}".format(connection_name, port)
 
     if cloud_sql_proxy_path is None:
-        assert cloud_sql_proxy_path, 'Could not find cloud_sql_proxy path'
+        assert cloud_sql_proxy_path, "Could not find cloud_sql_proxy path"
 
     if enable_iam:
-        command = [cloud_sql_proxy_path, '-enable_iam_login', instance_description]
+        command = [cloud_sql_proxy_path, "-enable_iam_login", instance_description]
     else:
         command = [cloud_sql_proxy_path, instance_description]
 
@@ -22,7 +23,7 @@ def run_cloud_sql_proxy(cloud_sql_proxy_path: str, connection_name: str, port: i
     return process.pid
 
 
-def stop_cloud_sql_proxy(pid : int, name: str) -> bool:
+def stop_cloud_sql_proxy(pid: int, name: str) -> bool:
     process = check_if_proxy_is_running(pid, name)
     if process:
         process.kill()
@@ -41,6 +42,3 @@ def check_if_proxy_is_running(pid: int, name: str) -> Optional[psutil.Process]:
         if name in str(cmdline):
             return process
     return None
-
-
-

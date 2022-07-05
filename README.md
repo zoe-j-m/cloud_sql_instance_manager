@@ -90,6 +90,31 @@ List all running instances
 cloud_sql list-running
 ```
 
+## Tests
+To run with coverage
+```bash
+pip install coverage
+coverage run -m pytest
+```
+
+## Releasing
+Install `build` and `twine`.
+```bash
+pip install twine build
+```
+Build with
+```bash
+python -m build
+```
+Release to test with
+```bash
+twine upload -r testpypi dist/*
+```
+Release to live with
+```bash
+twine upload -r pypi dist/*
+```
+
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
 

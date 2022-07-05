@@ -1,4 +1,4 @@
-from cloud_sql.cloud_sql import run
+from cloud_sql.instance_manager import run
 
 
 def cloud_sql():

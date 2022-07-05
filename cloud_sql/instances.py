@@ -18,7 +18,7 @@ class Instance(object):
         self.iam = False
         self.default = False
         self.name = name
-        self.shortname = name[:name.find("-instance-")]
+        self.nick_name = name[: name.find("-instance-")]
         self.region = region
         self.project = project
         self.connection_name = connection_name
@@ -31,9 +31,9 @@ class Instance(object):
 
     def print(self, pid: Optional[int]) -> str:
         if not pid:
-            return f'Project: {self.project}, Nick: {self.shortname}, Port {self.port or "N/A"}, Name: {self.name}, Region: {self.region}, IAM Enabled: {self.iam}, Default: {self.default}'
+            return f'Project: {self.project}, Nick: {self.nick_name}, Port {self.port or "N/A"}, Name: {self.name}, Region: {self.region}, IAM Enabled: {self.iam}, Default: {self.default}'
         else:
-            return f'Pid: {pid}, Project: {self.project}, Nick: {self.shortname}, Port {self.port or "N/A"}, Name: {self.name}, Region: {self.region}, IAM Enabled: {self.iam}, Default: {self.default}'
+            return f'Pid: {pid}, Project: {self.project}, Nick: {self.nick_name}, Port {self.port or "N/A"}, Name: {self.name}, Region: {self.region}, IAM Enabled: {self.iam}, Default: {self.default}'
 
     def set_iam(self, iam: bool):
         self.iam = iam
@@ -41,9 +41,12 @@ class Instance(object):
     def set_default(self, default: bool):
         self.default = default
 
-    def check(self):
-        if not hasattr(self, 'default'):
+    def check(self):  # pragma: no cover
+        if not hasattr(self, "default"):
             self.default = False
+        if hasattr(self, "shortname") and not hasattr(self, "nick_name"):
+            self.nick_name = self.shortname
+            delattr(self, "shortname")
 
 
 class Site(object):
@@ -51,7 +54,11 @@ class Site(object):
         self.nicknames = {}
         self.instances = instances
         self.nextPort = 0
-        ports = [instance.port for instance in instances.values() if instance.port is not None]
+        ports = [
+            instance.port
+            for instance in instances.values()
+            if instance.port is not None
+        ]
         ports.insert(0, 5433)
         self.nextPort = max(ports) + 1
 
@@ -61,11 +68,11 @@ class Site(object):
     def set_up_nicknames(self):
         self.nicknames = {}
         for instance in self.instances.values():
-            if instance.shortname in self.nicknames.keys():
-                if instance not in self.nicknames[instance.shortname]:
-                    self.nicknames[instance.shortname].append(instance)
+            if instance.nick_name in self.nicknames.keys():
+                if instance not in self.nicknames[instance.nick_name]:
+                    self.nicknames[instance.nick_name].append(instance)
             else:
-                self.nicknames[instance.shortname] = [instance]
+                self.nicknames[instance.nick_name] = [instance]
 
     def update(self, instance: Instance):
         if instance.connection_name not in self.instances.keys():
@@ -75,9 +82,14 @@ class Site(object):
             self.instances[instance.connection_name] = instance
 
     def print_list(self, project: Optional[str]) -> List[str]:
-        return [instance.print(None) for instance in
-                sorted(self.instances.values(), key=lambda instance: f'{instance.project}{instance.shortname}')
-                if (not project) or (instance.project == project)]
+        return [
+            instance.print(None)
+            for instance in sorted(
+                self.instances.values(),
+                key=lambda instance: f"{instance.project}{instance.nick_name}",
+            )
+            if (not project) or (instance.project == project)
+        ]
 
     def get_instance_by_nick_name(self, name, project) -> Optional[Instance]:
 
@@ -87,10 +99,14 @@ class Site(object):
         possibles = self.nicknames[name]
 
         if project:
-            possibles = [possible for possible in possibles if possible.project == project]
+            possibles = [
+                possible for possible in possibles if possible.project == project
+            ]
 
         if not possibles:
-            raise InstanceNotFoundError("No instance found with that nickname for that project")
+            raise InstanceNotFoundError(
+                "No instance found with that nickname for that project"
+            )
         else:
             if len(possibles) == 1:
                 return possibles[0]
@@ -100,8 +116,11 @@ class Site(object):
                 )
 
     def get_default_instances(self, project) -> List[Instance]:
-        return [instance for instance in self.instances.values() if
-                (not project or instance.project == project) and instance.default]
+        return [
+            instance
+            for instance in self.instances.values()
+            if (not project or instance.project == project) and instance.default
+        ]
 
     def check(self):
         for instance in self.instances.values():

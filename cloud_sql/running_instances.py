@@ -14,7 +14,9 @@ class RunningInstances(object):
         else:
             return None
 
-    def get_all_running(self,) -> Dict[str, int]:
+    def get_all_running(
+        self,
+    ) -> Dict[str, int]:
         return self.instances
 
     def remove_running(self, connection_name: str):
