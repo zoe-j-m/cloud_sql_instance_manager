@@ -5,6 +5,7 @@ from cloud_sql.instances import (
     Site,
     InstanceNotFoundError,
     DuplicateInstanceError,
+    InvalidConnectionName,
 )
 from tests import test_fixtures
 
@@ -166,3 +167,42 @@ class TestSite:
         assert site.get_default_instances(None) == [test_fixtures.instance2]
         assert site.get_default_instances("project-1") == []
         assert site.get_default_instances("project-2") == [test_fixtures.instance2]
+
+    def test_connection_names(self):
+        assert test_fixtures.site1.connection_names() == [
+            test_fixtures.connection_name1,
+            test_fixtures.connection_name2,
+        ]
+
+    def test_add_instance(self):
+        site = Site(
+            {
+                test_fixtures.name1: test_fixtures.instance1,
+                test_fixtures.name2: test_fixtures.instance2,
+            }
+        )
+        site.set_up_nicknames()
+        name3 = "db-pg-instance-3"
+        with raises(DuplicateInstanceError):
+            site.add_instance(
+                f"{test_fixtures.project1}:{test_fixtures.region1}:{name3}",
+                "database-postgres",
+                False,
+            )
+        with raises(DuplicateInstanceError):
+            site.add_instance(
+                f"{test_fixtures.project1}:{test_fixtures.region1}:{test_fixtures.name1}",
+                "test-nick",
+                False,
+            )
+        with raises(InvalidConnectionName):
+            site.add_instance(f"{test_fixtures.project1}:{name3}", "test-nick", False)
+        actual = site.add_instance(
+            f"{test_fixtures.project1}:{test_fixtures.region1}:{name3}",
+            "test-nick",
+            False,
+        )
+        by_nick = site.get_instance_by_nick_name("test-nick", None)
+        assert actual.name == name3
+        assert actual.project == test_fixtures.project1
+        assert by_nick == actual

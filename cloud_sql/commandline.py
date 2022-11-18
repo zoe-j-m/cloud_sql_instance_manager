@@ -48,5 +48,10 @@ def get_parameters(args: List[str]) -> Dict[str, str]:
     parser_config.add_argument(
         "-i", "--iam_default", help="New connections have enable_iam set to this value"
     )
+
+    parser_update = subparsers.add_parser("add", help="add a new instance")
+    parser_update.add_argument("connection_name", help="full connection name")
+    parser_update.add_argument("-n", "--nick", help="optional nickname")
+
     args = vars(parser.parse_args(args))
     return args

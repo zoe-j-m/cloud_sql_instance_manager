@@ -1,9 +1,11 @@
+from _pytest.python_api import raises
 from psutil import NoSuchProcess
 
 from cloud_sql.cloud_sql_proxy import (
     run_cloud_sql_proxy,
     check_if_proxy_is_running,
     stop_cloud_sql_proxy,
+    CloudProxyNotFoundError,
 )
 from tests import test_fixtures
 
@@ -13,6 +15,12 @@ from unittest.mock import MagicMock
 
 class TestCloudSqlProxy:
     proxy_path = "/a/path"
+
+    def test_run_proxy_no_path(self):
+        with raises(CloudProxyNotFoundError):
+            run_cloud_sql_proxy(
+                None, test_fixtures.connection_name1, test_fixtures.port1, False
+            )
 
     @mock.patch("cloud_sql.cloud_sql_proxy.subprocess.Popen")
     def test_run_proxy(self, popen_mock):

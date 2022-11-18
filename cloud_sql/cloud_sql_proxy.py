@@ -5,13 +5,17 @@ import psutil as psutil
 from psutil import NoSuchProcess
 
 
+class CloudProxyNotFoundError(Exception):
+    pass
+
+
 def run_cloud_sql_proxy(
     cloud_sql_proxy_path: str, connection_name: str, port: int, enable_iam: bool
 ) -> int:
     instance_description = "-instances={}=tcp:{}".format(connection_name, port)
 
     if cloud_sql_proxy_path is None:
-        assert cloud_sql_proxy_path, "Could not find cloud_sql_proxy path"
+        raise CloudProxyNotFoundError("Could not find cloud_sql_proxy path")
 
     if enable_iam:
         command = [cloud_sql_proxy_path, "-enable_iam_login", instance_description]

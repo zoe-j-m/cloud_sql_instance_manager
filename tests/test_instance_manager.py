@@ -13,8 +13,15 @@ from cloud_sql.instance_manager import (
     update,
     update_config,
     execute_command,
+    add_instance,
 )
-from cloud_sql.instances import Site, Instance, InstanceNotFoundError
+from cloud_sql.instances import (
+    Site,
+    Instance,
+    InstanceNotFoundError,
+    InvalidConnectionName,
+    DuplicateInstanceError,
+)
 from cloud_sql.running_instances import RunningInstances
 from tests import test_fixtures
 
@@ -327,6 +334,48 @@ class TestInstanceManager:
         config.set_enable_iam_by_default.assert_called_once_with(True)
         mock_print.assert_called_once_with("Updated default IAM setting to: True")
 
+    @mock.patch("cloud_sql.instance_manager.print")
+    def test_add(self, mock_print):
+
+        config = MagicMock(spec=Configuration)
+        config.enable_iam_by_default = True
+
+        instance = MagicMock(spec=Instance)
+        instance.port = test_fixtures.port1
+        instance.iam = False
+        instance.connection_name = test_fixtures.connection_name1
+        instance.name = test_fixtures.name1
+        instance.nick_name = "nick"
+        instance.project = test_fixtures.project1
+        instance.print.return_value = "conn print"
+
+        site = MagicMock(spec=Site)
+        site.add_instance.return_value = instance
+
+        add_instance(config, site, test_fixtures.connection_name1, "nick1")
+        site.add_instance.assert_called_once_with(
+            test_fixtures.connection_name1, "nick1", True
+        )
+        mock_print.assert_any_call("Added new instance")
+        mock_print.assert_any_call("conn print")
+
+        site.add_instance.reset_mock()
+        site.add_instance.side_effect = InvalidConnectionName("invalid!")
+        add_instance(config, site, test_fixtures.connection_name1, "nick1")
+        site.add_instance.assert_called_once_with(
+            test_fixtures.connection_name1, "nick1", True
+        )
+        mock_print.assert_any_call("invalid!")
+
+        site.add_instance.reset_mock()
+        site.add_instance.side_effect = DuplicateInstanceError("duplicate!!")
+        add_instance(config, site, test_fixtures.connection_name1, "nick1")
+        site.add_instance.assert_called_once_with(
+            test_fixtures.connection_name1, "nick1", True
+        )
+        mock_print.assert_any_call("duplicate!!")
+
+    @mock.patch("cloud_sql.instance_manager.add_instance")
     @mock.patch("cloud_sql.instance_manager.print_list")
     @mock.patch("cloud_sql.instance_manager.print_list_running")
     @mock.patch("cloud_sql.instance_manager.start")
@@ -345,6 +394,7 @@ class TestInstanceManager:
         mock_start,
         mock_list_running,
         mock_print_list,
+        mock_add_instance,
     ):
         config = MagicMock(spec=Configuration)
         site = MagicMock(spec=Site)
@@ -400,6 +450,16 @@ class TestInstanceManager:
         parameters = {"command": "config", "path": "/test/path", "iam_default": "true"}
         execute_command(parameters, config, site, running_instances)
         mock_update_config.assert_called_once_with(config, "/test/path", "true")
+
+        parameters = {
+            "command": "add",
+            "connection_name": "project:region:name",
+            "nick": "newnick",
+        }
+        execute_command(parameters, config, site, running_instances)
+        mock_add_instance.assert_called_once_with(
+            config, site, "project:region:name", "newnick"
+        )
 
         parameters = {"command": "fish"}
         execute_command(parameters, config, site, running_instances)

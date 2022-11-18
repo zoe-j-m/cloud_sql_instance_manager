@@ -13,6 +13,7 @@ from cloud_sql.instances import (
     InstanceNotFoundError,
     DuplicateInstanceError,
     Instance,
+    InvalidConnectionName,
 )
 from cloud_sql.persistence import Persistence, default_base_path
 from cloud_sql.running_instances import RunningInstances
@@ -169,6 +170,19 @@ def update_config(
         print(config.print())
 
 
+def add_instance(
+    config: Configuration, site: Site, connection_name: str, nick_name: Optional[str]
+):
+    try:
+        new_instance = site.add_instance(
+            connection_name, nick_name, config.enable_iam_by_default
+        )
+        print("Added new instance")
+        print(new_instance.print(None))
+    except (InvalidConnectionName, DuplicateInstanceError) as err:
+        print(str(err))
+
+
 def execute_command(
     parameters: Dict[str, str],
     config: Configuration,
@@ -206,6 +220,9 @@ def execute_command(
 
     elif command == "config":
         update_config(config, parameters["path"], parameters["iam_default"])
+
+    elif command == "add":
+        add_instance(config, site, parameters["connection_name"], parameters["nick"])
 
     else:
         print("Specify a command or ask for help with --help")
