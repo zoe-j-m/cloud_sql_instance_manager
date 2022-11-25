@@ -28,9 +28,6 @@ jobs:
           python -m pip install --upgrade pip
           pip install build bump2version
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-      - name: Build a binary wheel and a source tarball
-        run: |
-          python -m build --sdist --wheel --outdir dist/
       # Wait until successful build to configure git and bump versions
       - name: Configure Git
         run: |
@@ -50,11 +47,13 @@ jobs:
       - name: Bump Patch Version
         run: |
           bump2version patch
-        if: env.SKIPBUMP == 'FALSE'
-
+        if: env.SKIPBUMP != 'TRUE'
       - name: Push commit
         run: git push https://$GITHUB_ACTOR:$GITHUB_TOKEN@github.com/$GITHUB_REPOSITORY.git --follow-tags
-
+      - name: Build a binary wheel and a source tarball
+        run: |
+          python -m build --sdist --wheel --outdir dist/
+      # Wait until successful build to configure git and bump versions
       - name: Deploy to PyPi
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
