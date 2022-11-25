@@ -1,0 +1,8 @@
+name: Run pull request tests
+
+on:
+  - pull_request
+
+jobs:
+  test:
+    uses: ./.github/workflows/test.yml

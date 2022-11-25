@@ -1,0 +1,12 @@
+name: Deploy to PyPi
+
+on:
+  push:
+    branches:
+      - main
+
+concurrency: "main"
+
+jobs:
+  test:
+    uses: ./.github/workflows/test.yml
