@@ -12,6 +12,10 @@ class DuplicateInstanceError(Exception):
     pass
 
 
+class InvalidConnectionName(Exception):
+    pass
+
+
 class Instance(object):
     def __init__(
         self,
@@ -71,6 +75,9 @@ class Site(object):
 
     def __repr__(self):  # pragma: no cover
         return jsonpickle.encode(self)
+
+    def connection_names(self) -> List[str]:
+        return [instance.connection_name for instance in self.instances.values()]
 
     def set_up_nicknames(self):
         self.nicknames = {}
@@ -132,3 +139,46 @@ class Site(object):
     def check(self):
         for instance in self.instances.values():
             instance.check()
+
+    def add_instance(
+        self, connection_name: str, nick_name: Optional[str], enable_iam: bool
+    ) -> Instance:
+        split_connection_name = connection_name.split(":")
+        if len(split_connection_name) != 3:
+            raise InvalidConnectionName(
+                "Connection name should be in the format name:region:connectionName"
+            )
+
+        project = split_connection_name[0]
+        name = split_connection_name[2]
+
+        instance = Instance(
+            name,
+            split_connection_name[1],
+            project,
+            connection_name,
+            enable_iam,
+        )
+
+        if nick_name:
+            try:
+                self.get_instance_by_nick_name(nick_name, project)
+            except:
+                instance.nick_name = nick_name
+            else:
+                raise DuplicateInstanceError(
+                    "An instance already exists for that nick_name and project"
+                )
+
+        if connection_name in self.connection_names():
+            raise DuplicateInstanceError(
+                "An instance already exists for that name and project"
+            )
+
+        self.update(instance)
+        self.set_up_nicknames()
+        return instance
+
+    def remove_instance(self, connection_name: str):
+        self.instances.pop(connection_name)
+        self.set_up_nicknames()
