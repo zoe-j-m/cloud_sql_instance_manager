@@ -32,8 +32,13 @@ def get_instance_from_nick(
 ) -> Optional[Instance]:
     try:
         return site.get_instance_by_nick_name(nick, project)
-    except (InstanceNotFoundError, DuplicateInstanceError) as err:
-        print(err)
+    except InstanceNotFoundError:
+        print("No instance with that name or nick found.")
+        return None
+    except DuplicateInstanceError:
+        print(
+            "More than one instance with that name or nick found, try specifying a project with --project."
+        )
         return None
 
 
@@ -183,6 +188,17 @@ def add_instance(
         print(str(err))
 
 
+def remove_instance(
+    site: Site, running_instances: RunningInstances, name: str, project: Optional[str]
+):
+    instance = get_instance_from_nick(site, name, project)
+    if instance:
+        if instance.connection_name in running_instances.instances:
+            stop(site, instance.nick_name, instance.project)
+        site.remove_instance(instance.connection_name)
+        print(f"Removed connection: {instance.connection_name}")
+
+
 def execute_command(
     parameters: Dict[str, str],
     config: Configuration,
@@ -224,11 +240,16 @@ def execute_command(
     elif command == "add":
         add_instance(config, site, parameters["connection_name"], parameters["nick"])
 
+    elif command == "remove":
+        remove_instance(
+            site, running_instances, parameters["name"], parameters["project"]
+        )
+
     else:
         print("Specify a command or ask for help with --help")
 
 
-def run():
+def run():  # pragma: no cover
     persistence = Persistence(default_base_path())
     app_config = persistence.load_config()
     app_parameters = get_parameters(sys.argv[1:])

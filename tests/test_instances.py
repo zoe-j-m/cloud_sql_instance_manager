@@ -206,3 +206,20 @@ class TestSite:
         assert actual.name == name3
         assert actual.project == test_fixtures.project1
         assert by_nick == actual
+
+    def test_remove_instances(self):
+        site = Site(
+            {
+                test_fixtures.connection_name1: test_fixtures.instance1,
+                test_fixtures.connection_name2: test_fixtures.instance2,
+            }
+        )
+        site.set_up_nicknames()
+        site.remove_instance(
+            test_fixtures.instance1.connection_name,
+        )
+        with raises(InstanceNotFoundError):
+            site.get_instance_by_nick_name(
+                test_fixtures.instance1.nick_name, test_fixtures.instance1.project
+            )
+        assert test_fixtures.instance1.connection_name not in site.instances

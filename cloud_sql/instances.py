@@ -178,3 +178,7 @@ class Site(object):
         self.update(instance)
         self.set_up_nicknames()
         return instance
+
+    def remove_instance(self, connection_name: str):
+        self.instances.pop(connection_name)
+        self.set_up_nicknames()
