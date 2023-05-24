@@ -33,7 +33,7 @@ Pygments==2.12.0
 pyparsing==3.0.9
 pytest==7.1.2
 readme-renderer==35.0
-requests==2.27.1
+requests==2.31.0
 requests-toolbelt==0.9.1
 rfc3986==2.0.0
 rich==12.4.4
