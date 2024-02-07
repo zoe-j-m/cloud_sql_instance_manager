@@ -2,7 +2,7 @@ attrs==21.4.0
 bleach==5.0.1
 build==0.8.0
 cachetools==5.2.0
-certifi==2022.5.18.1
+certifi==2023.7.22.1
 charset-normalizer==2.0.12
 commonmark==0.9.1
 coverage==6.4.1
@@ -23,13 +23,13 @@ pep517==0.12.0
 pexpect==4.8.0
 pkginfo==1.8.3
 pluggy==1.0.0
-protobuf==3.20.1
+protobuf==3.20.2
 psutil==5.9.1
 ptyprocess==0.7.0
 py==1.11.0
 pyasn1==0.4.8
 pyasn1-modules==0.2.8
-Pygments==2.12.0
+Pygments==2.15.0
 pyparsing==3.0.9
 pytest==7.1.2
 readme-renderer==35.0
