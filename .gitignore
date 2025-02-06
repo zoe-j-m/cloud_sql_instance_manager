@@ -4,4 +4,7 @@ venv/
 __pycache__/
 cloud_sql_instance_manager.egg-info
 dist
+cloud_sql_instance_manager.egg-info/
 .coverage
+*.whl
+*.tar.gz
