@@ -42,7 +42,30 @@ class TestGcp:
         instances.list.return_value = request
         request.execute.return_value = self.test_response
         site = Site({})
-        obtain_instances(config, site, None)
+        obtain_instances(config, site, None, None)
+        assert len(site.instances) == 1
+        assert site.instances[test_fixtures.connection_name1].iam is True
+        assert "database-postgres" in site.nicknames
+
+        instances.list.reset_mock()
+        obtain_instances(config, site, "override")
+        instances.list.assert_called_once_with(project="override")
+
+    @mock.patch("cloud_sql.gcp.discovery.build")
+    @mock.patch("cloud_sql.gcp.google.auth.default")
+    def test_obtain_instances(self, mock_auth, mock_discovery):
+        service = MagicMock()
+        instances = MagicMock()
+        request = MagicMock()
+        config = MagicMock(spec=Configuration)
+        config.enable_iam_by_default = True
+        mock_auth.return_value = "creds1", test_fixtures.project1
+        mock_discovery.return_value = service
+        service.instances.return_value = instances
+        instances.list.return_value = request
+        request.execute.return_value = self.test_response
+        site = test_fixtures.site1
+        obtain_instances(config, site, None, True)
         assert len(site.instances) == 1
         assert site.instances[test_fixtures.connection_name1].iam is True
         assert "database-postgres" in site.nicknames

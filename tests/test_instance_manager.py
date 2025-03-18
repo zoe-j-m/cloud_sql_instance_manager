@@ -292,11 +292,13 @@ class TestInstanceManager:
         config = MagicMock(spec=Configuration)
 
         mock_obtain_instances.side_effect = add_instance_side_effect
-        import_instances(config, site, test_fixtures.project1)
+        mock_obtain_instances.return_value = (1,0)
+        import_instances(config, site, test_fixtures.project1, True)
         mock_obtain_instances.assert_called_once_with(
-            config, site, test_fixtures.project1
+            config, site, test_fixtures.project1, True
         )
         mock_print.assert_called_once_with("Imported 1 instances.")
+        mock_print.assert_called_once_with("Removed 0 instances.")
 
     @mock.patch("cloud_sql.instance_manager.get_instance_from_nick")
     @mock.patch("cloud_sql.instance_manager.print")
@@ -510,10 +512,10 @@ class TestInstanceManager:
             site, "nick", test_fixtures.project1, "true", "newnick", "false"
         )
 
-        parameters = {"command": "import", "project": test_fixtures.project1}
+        parameters = {"command": "import", "project": test_fixtures.project1, "tidy": True}
         execute_command(parameters, config, site, running_instances)
         mock_import_instances.assert_called_once_with(
-            config, site, test_fixtures.project1
+            config, site, test_fixtures.project1, True
         )
 
         parameters = {"command": "config", "path": "/test/path", "iam_default": "true"}
