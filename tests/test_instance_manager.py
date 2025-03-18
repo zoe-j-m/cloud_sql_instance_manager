@@ -1,5 +1,5 @@
 from unittest import mock
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, call, patch
 
 from cloud_sql.config import Configuration, PathNotFoundError
 from cloud_sql.instance_manager import (
@@ -36,6 +36,7 @@ def add_instance_side_effect(*args):
     instance.nick_name = "nick"
     instance.project = test_fixtures.project1
     args[1].instances = {test_fixtures.connection_name1: instance}
+    return (1,0)
 
 
 class TestInstanceManager:
@@ -290,15 +291,12 @@ class TestInstanceManager:
         site.instances = {}
 
         config = MagicMock(spec=Configuration)
-
         mock_obtain_instances.side_effect = add_instance_side_effect
-        mock_obtain_instances.return_value = (1,0)
         import_instances(config, site, test_fixtures.project1, True)
         mock_obtain_instances.assert_called_once_with(
             config, site, test_fixtures.project1, True
         )
-        mock_print.assert_called_once_with("Imported 1 instances.")
-        mock_print.assert_called_once_with("Removed 0 instances.")
+        mock_print.assert_has_calls([call("Imported 1 instances."),call("Removed 0 instances.")])
 
     @mock.patch("cloud_sql.instance_manager.get_instance_from_nick")
     @mock.patch("cloud_sql.instance_manager.print")

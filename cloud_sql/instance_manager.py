@@ -1,5 +1,5 @@
 import sys
-from typing import Dict, Optional, Tuple
+from typing import Dict, Optional
 from cloud_sql.gcp import obtain_instances
 from cloud_sql.cloud_sql_proxy import (
     run_cloud_sql_proxy,
@@ -116,13 +116,14 @@ def stop(
 
 
 def import_instances(config: Configuration, site: Site, project: Optional[str], tidy: Optional[bool]):
-    a : Tuple[int,int] = obtain_instances(config, site, project, tidy)
+
+    a : tuple[int,int] = obtain_instances(config, site, project, tidy)
     (insert_count, delete_count) = a
     print(f"Imported {insert_count} instances.")
     if tidy:
         print(f"Removed {delete_count} instances.")
         
-
+            
 
 def update(
     site: Site,

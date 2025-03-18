@@ -19,7 +19,12 @@ instance2 = Instance(name2, region2, project2, f"{project2}:{region2}:{name2}", 
 instance2.port = port2
 instance2.set_default(True)
 
-site1 = Site({name1: instance1, name2: instance2})
+name3 = "database-postgres-instance-1236"
+connection_name3 = f"{project1}:{region1}:{name3}"
+port3 = 5534
+instance3 = Instance(name3, region1, project1, connection_name3, False)
+instance3.port = port3
+site1 = Site({connection_name1: instance1, connection_name2: instance2})
 
 config1 = Configuration("path/to/cloud_sql", False)
 
