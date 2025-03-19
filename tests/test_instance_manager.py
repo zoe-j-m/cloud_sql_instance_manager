@@ -169,6 +169,17 @@ class TestInstanceManager:
         mock_run.assert_not_called()
         mock_print.assert_called_once_with("nick is already running.")
 
+        mock_run.reset_mock()
+        mock_print.reset_mock()
+        mock_get_from_nick.reset_mock()
+
+        mock_get_from_nick.return_value = None
+
+        start(config, site, running_instances, "nick", test_fixtures.project1)
+
+        mock_get_from_nick.assert_called_once_with(site, "nick", test_fixtures.project1)
+        mock_run.assert_not_called()
+
     @mock.patch("cloud_sql.instance_manager.get_instance_from_nick")
     @mock.patch("cloud_sql.instance_manager.stop_cloud_sql_proxy")
     @mock.patch("cloud_sql.instance_manager.print")
@@ -283,10 +294,19 @@ class TestInstanceManager:
             test_fixtures.connection_name1
         )
 
+        running_instances.reset_mock()
+        mock_print.reset_mock()
+        mock_get_from_nick.reset_mock()
+
+        mock_get_from_nick.return_value = None
+
+        stop(site, running_instances, "nick", test_fixtures.project1)
+        mock_get_from_nick.assert_called_once_with(site, "nick", test_fixtures.project1)
+        mock_stop.assert_not_called()
+
     @mock.patch("cloud_sql.instance_manager.obtain_instances")
     @mock.patch("cloud_sql.instance_manager.print")
     def test_import_instances(self, mock_print, mock_obtain_instances):
-
         site = MagicMock(spec=Site)
         site.instances = {}
 
@@ -301,7 +321,6 @@ class TestInstanceManager:
     @mock.patch("cloud_sql.instance_manager.get_instance_from_nick")
     @mock.patch("cloud_sql.instance_manager.print")
     def test_update(self, mock_print, mock_get_from_nick):
-
         instance = MagicMock(spec=Instance)
         instance.port = test_fixtures.port1
         instance.iam = False
@@ -372,7 +391,6 @@ class TestInstanceManager:
 
     @mock.patch("cloud_sql.instance_manager.print")
     def test_add(self, mock_print):
-
         config = MagicMock(spec=Configuration)
         config.enable_iam_by_default = True
 

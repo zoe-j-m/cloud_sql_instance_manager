@@ -22,7 +22,7 @@ from cloud_sql.running_instances import RunningInstances
 def refresh_running(running_instances: RunningInstances):
     running = running_instances.get_all_running()
     old_running = list(running.items())
-    for (connection_name, pid) in old_running:
+    for connection_name, pid in old_running:
         if not check_if_proxy_is_running(pid, connection_name):
             running_instances.remove_running(connection_name)
 
@@ -69,7 +69,12 @@ def start(
         if len(instances) == 0:
             print("No default instances found")
     else:
-        instances = [get_instance_from_nick(site, name, project)]
+        instance = get_instance_from_nick(site, name, project)
+        if instance:
+            instances = [instance]
+        else:
+            return
+
     for instance in instances:
         if running_instances.get_running(instance.connection_name):
             print(f"{instance.nick_name} is already running.")
@@ -99,7 +104,11 @@ def stop(
         if len(instances) == 0:
             print("No running instances found")
     else:
-        instances = [get_instance_from_nick(site, nickname, project)]
+        instance = get_instance_from_nick(site, nickname, project)
+        if instance:
+            instances = [instance]
+        else:
+            return
 
     for instance in instances:
         pid = running_instances.get_running(instance.connection_name)
@@ -134,7 +143,6 @@ def update(
 ):
     instance = get_instance_from_nick(site, name, project)
     if instance:
-
         if new_iam:
             instance.set_iam(new_iam.lower() == "true")
 
