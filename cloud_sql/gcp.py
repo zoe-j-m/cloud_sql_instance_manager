@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 import google
 from googleapiclient import discovery
@@ -18,7 +18,7 @@ def get_google_service(credentials):
 
 def obtain_instances(
     config: Configuration, site: Site, override_project: Optional[str], tidy: Optional[bool]
-) -> tuple[int,int]:
+) -> Tuple[int,int]:
     credentials, project = get_credentials_and_project()
     service = get_google_service(credentials)
     if override_project:
