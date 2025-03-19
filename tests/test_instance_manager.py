@@ -168,6 +168,17 @@ class TestInstanceManager:
         mock_run.assert_not_called()
         mock_print.assert_called_once_with("nick is already running.")
 
+        mock_run.reset_mock()
+        mock_print.reset_mock()
+        mock_get_from_nick.reset_mock()
+
+        mock_get_from_nick.return_value = None
+
+        start(config, site, running_instances, "nick", test_fixtures.project1)
+
+        mock_get_from_nick.assert_called_once_with(site, "nick", test_fixtures.project1)
+        mock_run.assert_not_called()
+
     @mock.patch("cloud_sql.instance_manager.get_instance_from_nick")
     @mock.patch("cloud_sql.instance_manager.stop_cloud_sql_proxy")
     @mock.patch("cloud_sql.instance_manager.print")

@@ -69,7 +69,12 @@ def start(
         if len(instances) == 0:
             print("No default instances found")
     else:
-        instances = [get_instance_from_nick(site, name, project)]
+        instance = get_instance_from_nick(site, name, project)
+        if instance:
+            instances = [instance]
+        else:
+            return
+
     for instance in instances:
         if running_instances.get_running(instance.connection_name):
             print(f"{instance.nick_name} is already running.")
@@ -200,7 +205,7 @@ def remove_instance(
 
 
 def execute_command(
-    parameters: Dict[str, str],
+        parameters: Dict[str, str],
     config: Configuration,
     site: Site,
     running_instances: RunningInstances,
