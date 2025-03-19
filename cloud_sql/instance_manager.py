@@ -117,8 +117,7 @@ def stop(
 
 def import_instances(config: Configuration, site: Site, project: Optional[str], tidy: Optional[bool]):
 
-    a : tuple[int,int] = obtain_instances(config, site, project, tidy)
-    (insert_count, delete_count) = a
+    (insert_count, delete_count) = obtain_instances(config, site, project, tidy)
     print(f"Imported {insert_count} instances.")
     if tidy:
         print(f"Removed {delete_count} instances.")
