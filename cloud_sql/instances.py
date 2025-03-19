@@ -88,12 +88,15 @@ class Site(object):
             else:
                 self.nicknames[instance.nick_name] = [instance]
 
-    def update(self, instance: Instance):
+    def update(self, instance: Instance) -> bool:
         if instance.connection_name not in self.instances.keys():
             if instance.port is None:
                 instance.port = self.nextPort
                 self.nextPort += 1
             self.instances[instance.connection_name] = instance
+            return True
+        else:
+            return False
 
     def print_list(self, project: Optional[str]) -> List[str]:
         return [

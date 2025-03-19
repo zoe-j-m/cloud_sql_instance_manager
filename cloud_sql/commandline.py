@@ -35,6 +35,8 @@ def get_parameters(args: List[str]) -> Dict[str, str]:
 
     parser_import = subparsers.add_parser("import", help="import instances from gcp")
     parser_import.add_argument("-p", "--project", help="project name")
+    parser_import.add_argument('--tidy', action='store_true',
+                    help='remove instances not found in project')
 
     parser_update = subparsers.add_parser("update", help="update an existing instance")
     parser_update.add_argument("name", help="nickname of connection")

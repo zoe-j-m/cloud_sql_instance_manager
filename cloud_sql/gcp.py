@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import List, Optional, Tuple
 
 import google
 from googleapiclient import discovery
@@ -17,8 +17,8 @@ def get_google_service(credentials):
 
 
 def obtain_instances(
-    config: Configuration, site: Site, override_project: Optional[str]
-):
+    config: Configuration, site: Site, override_project: Optional[str], tidy: Optional[bool]
+) -> Tuple[int,int]:
     credentials, project = get_credentials_and_project()
     service = get_google_service(credentials)
     if override_project:
@@ -36,6 +36,18 @@ def obtain_instances(
         for item in resp.get("items")
         if item.get("instanceType") == "CLOUD_SQL_INSTANCE"
     ]
+    insert_count = 0
+    delete_count = 0
     for instance in instances:
-        site.update(instance)
+        if site.update(instance):
+            insert_count += 1
+    if tidy:
+        project_instances : List[Instance] = [instance for instance in site.instances.values() if instance.project == project]
+        connection_names = [instance.connection_name for instance in instances]
+        for project_instance in project_instances:
+            if project_instance.connection_name not in connection_names:
+                site.remove_instance(project_instance.connection_name)
+                delete_count += 1
+
     site.set_up_nicknames()
+    return (insert_count, delete_count)

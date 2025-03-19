@@ -115,11 +115,14 @@ def stop(
             print(f"{instance.nick_name} is not running")
 
 
-def import_instances(config: Configuration, site: Site, project: Optional[str]):
-    prev_instances = len(site.instances)
-    obtain_instances(config, site, project)
-    print(f"Imported {len(site.instances) - prev_instances} instances.")
+def import_instances(config: Configuration, site: Site, project: Optional[str], tidy: Optional[bool]):
 
+    (insert_count, delete_count) = obtain_instances(config, site, project, tidy)
+    print(f"Imported {insert_count} instances.")
+    if tidy:
+        print(f"Removed {delete_count} instances.")
+        
+            
 
 def update(
     site: Site,
@@ -232,7 +235,7 @@ def execute_command(
         )
 
     elif command == "import":
-        import_instances(config, site, parameters["project"])
+        import_instances(config, site, parameters["project"], parameters["tidy"])
 
     elif command == "config":
         update_config(config, parameters["path"], parameters["iam_default"])
