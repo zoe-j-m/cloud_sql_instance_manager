@@ -79,8 +79,8 @@ class TestInstanceManager:
         test_print = ["one", "two"]
         site = MagicMock(spec=Site)
         site.print_list.return_value = test_print
-        print_list(site, "proj")
-        site.print_list.assert_called_once_with("proj")
+        print_list(site, "proj", "filly")
+        site.print_list.assert_called_once_with("proj", "filly")
         assert mock_print.call_count == 2
 
     @mock.patch("cloud_sql.instance_manager.print")
@@ -487,9 +487,14 @@ class TestInstanceManager:
         site = MagicMock(spec=Site)
         running_instances = MagicMock(spec=RunningInstances)
 
-        parameters = {"command": "list", "project": test_fixtures.project1}
+        parameters = {"command": "list", "project": test_fixtures.project1, "filter": None}
         execute_command(parameters, config, site, running_instances)
-        mock_print_list.assert_called_once_with(site, test_fixtures.project1)
+        mock_print_list.assert_called_once_with(site, test_fixtures.project1, None)
+
+        mock_print_list.reset_mock()
+        parameters = {"command": "list", "project": test_fixtures.project1, "filter": "filly"}
+        execute_command(parameters, config, site, running_instances)
+        mock_print_list.assert_called_once_with(site, test_fixtures.project1, "filly")
 
         parameters = {"command": "list-running"}
         execute_command(parameters, config, site, running_instances)

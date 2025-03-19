@@ -9,6 +9,9 @@ def get_parameters(args: List[str]) -> Dict[str, str]:
     )
     subparsers = parser.add_subparsers(help="sub-command help", dest="command")
     parser_list = subparsers.add_parser("list", help="list current instances")
+    parser_list.add_argument(
+        "filter", nargs="?", help="filter the list by this string"
+    )
     parser_list.add_argument("-p", "--project", help="project name")
 
     parser_list_running = subparsers.add_parser(

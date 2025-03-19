@@ -39,7 +39,7 @@ cloud_sql import --project YOUR-PROJECT-NAME
 
 If you want to remove any old instances that are not found in your cloud project, add the --tidy flag.
 
-```base
+```bash
 cloud_sql import --project YOUR-PROJECT-NAME --tidy
 ```
 
@@ -68,6 +68,8 @@ cloud_sql update NICKNAME --iam true
 cloud_sql start NICK-NAME
 ```
 
+You can filter by project with `--project YOUR-PROJECT`
+
 ### Starting all default instances
 
 ```bash
@@ -82,11 +84,15 @@ Add `--project YOUR-PROJECT` to start only default instances for a particular pr
 cloud_sql stop NICK-NAME
 ```
 
+You can filter by project with `--project YOUR-PROJECT`
+
 ### Stopping all running instances
 
 ```bash
 cloud_sql stop all
 ```
+
+Add `--project YOUR-PROJECT` to stop only instances for a particular project
 
 ### Listing instances
 
@@ -101,6 +107,18 @@ List all instances for a project
 ```bash
 cloud_sql list --project YOUR-PROJECT
 ```
+
+You can also filter the list by providing a string after the list command.
+This string will be searched for in the output of each instance.
+For example:
+
+```bash
+cloud_sql list test-application
+```
+
+This will list all instances that have `test-application` in their output.
+This could be in the project, nickname, port, name, region, IAM status,
+or default status.
 
 List all running instances
 
@@ -145,7 +163,8 @@ twine upload -r pypi dist/*
 
 ## Contributing
 
-Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+Pull requests are welcome.
+For major changes, please open an issue first to discuss what you would like to change.
 
 Please make sure to update tests as appropriate.
 

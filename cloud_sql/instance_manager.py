@@ -42,8 +42,8 @@ def get_instance_from_nick(
         return None
 
 
-def print_list(site: Site, project: Optional[str]):
-    lines = site.print_list(project)
+def print_list(site: Site, project: Optional[str], filter_string: Optional[str]):
+    lines = site.print_list(project, filter_string)
     for line in lines:
         print(line)
 
@@ -219,7 +219,7 @@ def execute_command(
     command = parameters["command"]
 
     if command == "list":
-        print_list(site, parameters["project"])
+        print_list(site, parameters["project"], parameters["filter"])
 
     elif command == "list-running":
         print_list_running(site, running_instances)
