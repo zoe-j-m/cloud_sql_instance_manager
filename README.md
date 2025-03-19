@@ -114,7 +114,8 @@ You can also filter the list by providing a string after the list command. This 
 cloud_sql list test-application
 ```
 
-This will list all instances that have `test-application` in their output. This could be in the project, nickname, port, name, region, IAM status, or default status.
+This will list all instances that have `test-application` in their output.
+This could be in the project, nickname, port, name, region, IAM status, or default status.
 
 List all running instances
 
@@ -159,7 +160,8 @@ twine upload -r pypi dist/*
 
 ## Contributing
 
-Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+Pull requests are welcome.
+For major changes, please open an issue first to discuss what you would like to change.
 
 Please make sure to update tests as appropriate.
 

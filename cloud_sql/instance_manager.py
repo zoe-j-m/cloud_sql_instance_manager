@@ -42,8 +42,8 @@ def get_instance_from_nick(
         return None
 
 
-def print_list(site: Site, project: Optional[str], filter: Optional[str]):
-    lines = site.print_list(project, filter)
+def print_list(site: Site, project: Optional[str], filter_string: Optional[str]):
+    lines = site.print_list(project, filter_string)
     for line in lines:
         print(line)
 
