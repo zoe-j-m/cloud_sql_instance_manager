@@ -1,3 +1,4 @@
+from copy import deepcopy
 from _pytest.python_api import raises
 
 from cloud_sql.instances import (
@@ -112,17 +113,29 @@ class TestSite:
         assert instance.port == 5513
 
     def test_print_list(self):
+        test_instance = deepcopy(test_fixtures.instance2)
+        test_instance.nick_name = 'testnick'
         site = Site(
             {
                 test_fixtures.name1: test_fixtures.instance1,
-                test_fixtures.name2: test_fixtures.instance2,
+                test_fixtures.name2: test_instance,
             }
         )
-        values = site.print_list(test_fixtures.project1)
+        site.set_up_nicknames()
+
+        values = site.print_list(test_fixtures.project1, None)
         assert len(values) == 1
         assert (
             values[0]
             == "Project: project-1, Nick: database-postgres, Port 5511, Name: database-postgres-instance-1234, Region: region-1, IAM Enabled: False, Default: False"
+        )
+
+
+        values = site.print_list(None, 'tn')
+        assert len(values) == 1
+        assert (
+            values[0]
+            == "Project: project-2, Nick: testnick, Port 5512, Name: database-postgres-instance-1235, Region: region-2, IAM Enabled: False, Default: True"
         )
 
     def test_get_instance_by_nickname(self):

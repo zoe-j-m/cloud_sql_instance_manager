@@ -98,14 +98,15 @@ class Site(object):
         else:
             return False
 
-    def print_list(self, project: Optional[str]) -> List[str]:
+    def print_list(self, project: Optional[str], filter: Optional[str]) -> List[str]:
         return [
             instance.print(None)
             for instance in sorted(
                 self.instances.values(),
                 key=lambda instance: f"{instance.project}{instance.nick_name}",
             )
-            if (not project) or (instance.project == project)
+            if ((not project) or (instance.project == project))
+            and ((not filter) or (filter in instance.print(None)))
         ]
 
     def get_instance_by_nick_name(self, name, project) -> Optional[Instance]:
