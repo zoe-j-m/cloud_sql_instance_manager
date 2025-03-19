@@ -293,6 +293,17 @@ class TestInstanceManager:
             test_fixtures.connection_name1
         )
 
+        running_instances.reset_mock()
+        mock_print.reset_mock()
+        mock_get_from_nick.reset_mock()
+
+        mock_get_from_nick.return_value = None
+
+        stop(site, running_instances, "nick", test_fixtures.project1)
+        
+        mock_get_from_nick.assert_called_once_with(site, "nick", test_fixtures.project1)
+        mock_stop.assert_not_called()
+
     @mock.patch("cloud_sql.instance_manager.obtain_instances")
     @mock.patch("cloud_sql.instance_manager.print")
     def test_import_instances(self, mock_print, mock_obtain_instances):

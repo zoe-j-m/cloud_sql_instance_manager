@@ -104,7 +104,11 @@ def stop(
         if len(instances) == 0:
             print("No running instances found")
     else:
-        instances = [get_instance_from_nick(site, nickname, project)]
+        instance = get_instance_from_nick(site, nickname, project)
+        if instance:
+            instances = [instance]
+        else:
+            return
 
     for instance in instances:
         pid = running_instances.get_running(instance.connection_name)
