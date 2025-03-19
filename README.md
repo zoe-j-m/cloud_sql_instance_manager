@@ -108,8 +108,8 @@ List all instances for a project
 cloud_sql list --project YOUR-PROJECT
 ```
 
-You can also filter the list by providing a string after the list command. 
-This string will be searched for in the output of each instance. 
+You can also filter the list by providing a string after the list command.
+This string will be searched for in the output of each instance.
 For example:
 
 ```bash
