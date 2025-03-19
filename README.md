@@ -108,14 +108,17 @@ List all instances for a project
 cloud_sql list --project YOUR-PROJECT
 ```
 
-You can also filter the list by providing a string after the list command. This string will be searched for in the output of each instance. For example:
+You can also filter the list by providing a string after the list command. 
+This string will be searched for in the output of each instance. 
+For example:
 
 ```bash
 cloud_sql list test-application
 ```
 
 This will list all instances that have `test-application` in their output.
-This could be in the project, nickname, port, name, region, IAM status, or default status.
+This could be in the project, nickname, port, name, region, IAM status,
+or default status.
 
 List all running instances
 
